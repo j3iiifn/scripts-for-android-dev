@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -e -o pipefail
+export LC_ALL=C
+
+adb-devices-all | while read _ os_ver model serial
+do
+    echo "===== Android ${os_ver} / ${model} / ${serial} ====="
+    scrcpy -s ${serial} </dev/null >/dev/null 2>&1 &
+done

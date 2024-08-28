@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+export LC_ALL=C
+
+file_path=$1
+
+adb-devices-all | while read _ os_ver model serial
+do
+    echo "===== Android ${os_ver} / ${model} / ${serial} ====="
+    adb -s ${serial} push -a ${file_path} /sdcard/Download/ < /dev/null
+done

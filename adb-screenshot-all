@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+export LC_ALL=C
+
+# SCREENSHOT_DIR=~/Desktop
+SCREENSHOT_DIR=$(defaults read com.apple.screencapture location)
+
+adb_screenshot() {
+    os_ver=$1
+    model=$2
+    serial=$3
+    shotdate=$4
+
+    output=${SCREENSHOT_DIR/#\~/$HOME}/Screenshot_${shotdate}_Android${os_ver}_${model}.png
+
+    adb -s ${serial} shell screencap -p /sdcard/screen.png
+    adb -s ${serial} pull /sdcard/screen.png ${output}
+    adb -s ${serial} shell rm /sdcard/screen.png
+
+    echo "Output: ${output}"
+}
+export -f adb_screenshot
+
+# https://stackoverflow.com/questions/7411052/bash-while-loop-iterates-only-once-whenever-body-contains-ssh
+# https://stackoverflow.com/questions/74525164/while-loop-in-bash-script-execute-only-once
+
+shotdate=$(date +'%Y%m%d_%H%M%S')
+
+adb-devices-all | while read _ os_ver model serial
+do
+    echo "===== Android ${os_ver} / ${model} / ${serial} ====="
+    adb_screenshot ${os_ver} ${model} ${serial} ${shotdate} < /dev/null
+done

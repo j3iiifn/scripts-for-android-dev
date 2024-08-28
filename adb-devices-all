@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+export LC_ALL=C
+
+# Sample Output:
+# Android 14 Pixel_7a 41171JEHNXXXXX
+# Android 13 Pixel_6a 28021JEGRXXXXX
+# Android 12 Pixel_3a 958AYXXXXX
+# Android 11 Pixel_4a 0A131JEC2XXXXX
+# Android 10 Pixel_3a 9B1AYXXXXX
+# Android 7.1.1 E5823 CB5A2XXXXX
+
+adb devices -l | fgrep 'model:' | while read line
+do
+    serial=$(echo ${line} | awk '{print $1}')
+    model=$(echo ${line} | grep -o 'model:[^ ]*' | cut -d: -f2)
+    os_ver=$(adb -s ${serial} shell getprop ro.build.version.release < /dev/null | col)
+    echo "Android ${os_ver} ${model:-x} ${serial}"
+done | sort -k2,2 -nr

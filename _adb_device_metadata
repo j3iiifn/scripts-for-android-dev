@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -e -o pipefail
+export LC_ALL=C
+
+if [[ -z "$1" ]]; then
+    export serial=$(adb devices -l | grep model | awk '{print $1}' | head -n1)
+else
+    export serial=$(adb devices -l | grep $1 | awk '{print $1}' | head -n1)
+fi
+
+[[ -z "${serial}" ]] && exit 1
+
+export model=$(adb devices -l | grep ${serial} | grep -o 'model:[^ ]*' | cut -d: -f2)
+export os_ver=$(adb -s ${serial} shell getprop ro.build.version.release | col)
