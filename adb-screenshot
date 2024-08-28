@@ -2,18 +2,14 @@
 set -e -o pipefail
 export LC_ALL=C
 
-# SCREENSHOT_DIR=~/Desktop
-SCREENSHOT_DIR=$(defaults read com.apple.screencapture location)
+if [[ -z "$1" ]]; then
+    read _ os_ver model serial <<< $(adb-devices-all | head -n1)
+else
+    read _ os_ver model serial <<< $(adb-devices-all | fgrep "$1")
+fi
 
-serial="$1"
-
-source _adb_device_metadata "${serial}"
+[[ -z "${serial}" ]] && exit 1
 
 shotdate=$(date +'%Y%m%d_%H%M%S')
-output=${SCREENSHOT_DIR/#\~/$HOME}/Screenshot_${shotdate}_Android${os_ver}_${model}.png
 
-adb -s ${serial} shell screencap -p /sdcard/screen.png
-adb -s ${serial} pull /sdcard/screen.png ${output}
-adb -s ${serial} shell rm /sdcard/screen.png
-
-echo "Output: ${output}"
+_adb_screenshot ${os_ver} ${model} ${serial} ${shotdate}

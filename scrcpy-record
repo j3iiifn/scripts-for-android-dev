@@ -5,9 +5,13 @@ export LC_ALL=C
 # SCREENSHOT_DIR=~/Desktop
 SCREENSHOT_DIR=$(defaults read com.apple.screencapture location)
 
-serial="$1"
+if [[ -z "$1" ]]; then
+    read _ os_ver model serial <<< $(adb-devices-all | head -n1)
+else
+    read _ os_ver model serial <<< $(adb-devices-all | fgrep "$1")
+fi
 
-source _adb_device_metadata "${serial}"
+[[ -z "${serial}" ]] && exit 1
 
 shotdate=$(date +'%Y%m%d_%H%M%S')
 output=${SCREENSHOT_DIR/#\~/$HOME}/Record_${shotdate}_Android${os_ver}_${model}.mp4

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -e -o pipefail
+export LC_ALL=C
+
+# SCREENSHOT_DIR=~/Desktop
+SCREENSHOT_DIR=$(defaults read com.apple.screencapture location)
+
+os_ver=$1
+model=$2
+serial=$3
+shotdate=$4
+
+[ $# -ne 4 ] && exit 1
+
+echo "===== Android ${os_ver} / ${model} / ${serial} ====="
+
+output=${SCREENSHOT_DIR/#\~/$HOME}/Screenshot_${shotdate}_Android${os_ver}_${model}.png
+
+adb -s ${serial} shell screencap -p /sdcard/screen.png
+adb -s ${serial} pull /sdcard/screen.png ${output}
+adb -s ${serial} shell rm /sdcard/screen.png
+
+echo "Output: ${output}"
